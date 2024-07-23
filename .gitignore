@@ -140,7 +140,7 @@ outputs
 .vscode
 *.mp3
 
-enh-checkpoints/*
-sep-checkpoints/*
+enh-checkpoints/*.pth
+sep-checkpoints/*.pth
 
 *.DS_Store
