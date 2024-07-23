@@ -1,0 +1,95 @@
+body {background-color: #fdfdfd; color: rgb(54, 54, 54); margin: 0px; font-size: 1em; }
+h1, h2, h3, h4, h5 {text-align: center;}
+h1 {margin-bottom: 24px; font-size: 2.2em; font-weight: normal;}
+h2 {margin-top: 48px; font-weight: bold !important;}
+h1, h2, h3, h4, h5, a, p, span, body {font-weight: normal; font-family: "Google Sans", sans-serif;}
+.header {background-color: #fdfdfd; width: 100%; padding-top: 48px; padding-bottom: 8px;}
+.links {width: 100%; margin: auto; text-align: center; padding-top: 8px;}
+.content {max-width: 1260px; margin: auto; margin-top: 48px; margin-bottom: 64px;}
+a, h2 {color: #c03d3e; text-decoration: none;}
+a:hover {color: #ce5252;}
+.nobreak {white-space: nowrap;}
+.hr {height: 1px; background-color: #d6dbdf; max-width: 960px; margin: auto; margin-top: 48px;}
+.hr-long {width: 100%; margin: 48px 0px; height: 1px; background-color: #d6dbdf;}
+p {line-height: 1.4em; text-align: justify;}
+.abstract {max-width: 940px; margin: auto;}
+.math {font-family: "Computer Modern Sans", sans-serif; font-style: italic;}
+sub, sup {line-height: 0;}
+.figure {width: 100%; min-height: 120px; margin: 36px 0; background-repeat: no-repeat; background-position: center; background-size: contain;}
+.figure-caption {margin: auto; max-width: 95%; margin-top: 24px; margin-bottom: 24px;}
+.youtube-container {background-color: #000; margin-top: 32px;}
+.youtube {display: block; margin: auto; width: 960px; padding-top: 20px; padding-bottom: 20px;}
+.content-video {width: 100%; margin: 0; text-align: center;}
+.content-video-container {width: 100%; max-width: 100%; margin: auto;}
+.content-video-frame {display: inline-block; width: 49%; text-align: center;}
+.content-video-frame.medium {width: 30%;}
+.content-video-frame.large {width: 36%;}
+.content-video-frame.huge {width: 76%;}
+.video-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.video-grid {
+  display: flex;
+}
+
+.content-video-frame {
+  margin: 0 10px;
+  text-align: center;
+}
+.abstract-container {
+  display: inline-block;
+  background-color: yellow;
+  padding: 10px;
+  margin-top: 20px;
+  width: fit-content;
+}
+.abstract-container {
+  display: inline-block;
+  background-color: #f1c432;
+  padding: 10px;
+  margin-top: 20px;
+  width: fit-content;
+  text-align: center;
+}
+
+.yellow-star::before {
+  content: "\2605";
+  color: rgb(255, 221, 0);
+}
+.content-video-frame span {display: inline-block; margin-bottom: 12px; font-weight: bold; font-size: 1.2em;}
+.hidden-content {display: none; background-color: #f3f3f6; border: 0; border-radius: 12px; margin-top: -18px; margin-bottom: 32px; padding-top: 50px; padding-bottom: 32px;}
+.legend {display: inline-block; border: 1px solid #eaeaea; padding: 8px; margin-top: 12px; text-align: center;}
+.legend-item {display: inline-block; margin-left: 6px; margin-right: 6px; font-size: 12px;}
+.legend-symbol {font-weight: bold; margin-right: 6px; font-size: 20px;}
+.page {display: inline-block; width: 96px; height: 124px; border: 1px solid #bbb; margin: 2px; background-repeat: no-repeat; background-position: center; background-size: contain;}
+table.authors {width: 100%; max-width: 900px; margin: auto; margin-bottom: -30px; text-align: center;}
+table.authors a {padding: 6px 0; display: inline-block; font-weight: normal; font-size: 1.3em;}
+table.authors .authors-affiliation {display: block; font-size: 1em;}
+a.btn {display: inline-block; min-width: 70px; font-family: "Google Sans", sans-serif; background-color:  rgb(47, 47, 47); color: white; padding: 8px 18px; font-size: 1.1em; font-weight: normal; border-radius: 32px;}
+a.btn:hover {background-color:  rgb(54, 54, 54);}
+.bibtexsection {padding: 4px 16px; font-family: "Courier", monospace; font-size: 14px; white-space: pre; background-color: #f4f4f4; text-align: left;}
+.noselect {-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}
+.bold {font-weight: bolder; color:rgb(6, 6, 6)}
+.italic {font-style: italic;}
+.highlight {font-weight: bolder; font-style: italic; color: #c03d3e;}
+footer {background-color: #efeff3; width: 100%; margin-top: 32px; padding-top: 16px; padding-bottom: 16px; text-align: center;}
+
+
+.video-container figure {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+  
+.video-container figcaption {
+  font-size: 1.2rem;
+  margin-top: -5rem;
+}
+
+.author-block {
+  display: inline-block;
+  margin-right: 0px;
+}

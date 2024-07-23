@@ -5,7 +5,7 @@
 <p align="center">
   <strong>Kai Li<sup>1</sup>, Wendi Sang<sup>1</sup>, Chang Zeng<sup>2</sup>, Runxuan Yang<sup>1</sup>, Guo Chen<sup>1</sup>, Xiaolin Hu<sup>1</sup></strong><br>
     <strong><sup>1</sup>Tsinghua University, China</strong><br>
-    <strong><sup>2</sup>National Institute of Informatics, Jepan</strong><br>
+    <strong><sup>2</sup>National Institute of Informatics, Japan</strong><br>
   <a href="http://example.com/paper">Paper</a> | <a href="http://example.com/demo">Demo</a>
 </p>
 
@@ -53,7 +53,7 @@ cd enhancement
 python inference.py --conf_dir=../enh-checkpoints/TaylorSENet-Noise/config.yaml
 ```
 
-## Benchmark Results
+## Leaderboard
 
 We have trained separation and enhancement models on the LibriSpace dataset. The results are as follows:
 
@@ -128,18 +128,18 @@ We have trained separation and enhancement models on the LibriSpace dataset. The
 
 #### Music Environment
 
-| Model            | SI-SNR | SDR   | NB-PESQ | WB-PESQ | STOI  | MOS_NOISE | MOS_REVERB | MOS_SIG | MOS_OVRL | WER (%) | 服务器 |
-|------------------|--------|-------|---------|---------|-------|-----------|------------|---------|----------|---------|---------|
-| DCCRN            | 11.56  | 11.98 | 2.72    | 2.00    | 0.85  | 3.30      | 3.51       | 2.94    | 2.59     | 25.13   | img81   |
-| Fullband         | 10.07  | 11.098| 2.80    | 2.02    | 0.86  | 3.13      | 2.99       | 2.88    | 2.46     | 25.27   | img81   |
-| FullSubNet       | 11.60  | 12.31 | 3.10    | 2.22    | 0.88  | 3.34      | 3.08       | 3.05    | 2.63     | 20.82   | img81   |
-| Fast-FullSubNet  | 10.36  | 11.24 | 2.93    | 2.08    | 0.87  | 3.22      | 3.03       | 2.93    | 2.51     | 24.98   | img81   |
-| FullSubNet+      | 10.64  | 11.50 | 2.80    | 1.99    | 0.86  | 3.02      | 2.93       | 2.82    | 2.38     | 24.11   | img81   |
-| TaylorSENet      | 12.18  | 13.04 | 3.06    | 2.33    | 0.88  | 2.76      | 2.92       | 2.65    | 2.24     | 23.46   | img81   |
-| GaGNet           | 12.20  | 13.17 | 2.95    | 2.27    | 0.87  | 2.78      | 2.86       | 2.64    | 2.21     | 23.36   | img81   |
-| G2Net            | 12.14  | 13.13 | 3.00    | 2.32    | 0.88  | 2.80      | 2.88       | 2.64    | 2.23     | 22.96   | img81   |
-| Inter-SubNet     | 12.07  | 13.01 | 3.15    | 2.28    | 0.88  | 3.34      | 3.11       | 3.04    | 2.64     | 20.07   | img81   |
-| SudoRMRF         | 12.99  | 13.86 | 2.61    | 2.01    | 0.85  | 3.91      | 2.80       | 2.98    | 1.93     | 88.72   | img81   |
+| Model            | SI-SNR | SDR   | NB-PESQ | WB-PESQ | STOI  | MOS_NOISE | MOS_REVERB | MOS_SIG | MOS_OVRL | WER (%)
+|------------------|--------|-------|---------|---------|-------|-----------|------------|---------|----------|---------|
+| DCCRN            | 11.56  | 11.98 | 2.72    | 2.00    | 0.85  | 3.30      | 3.51       | 2.94    | 2.59     | 25.13 |
+| Fullband         | 10.07  | 11.098| 2.80    | 2.02    | 0.86  | 3.13      | 2.99       | 2.88    | 2.46     | 25.27 |
+| FullSubNet       | 11.60  | 12.31 | 3.10    | 2.22    | 0.88  | 3.34      | 3.08       | 3.05    | 2.63     | 20.82 |
+| Fast-FullSubNet  | 10.36  | 11.24 | 2.93    | 2.08    | 0.87  | 3.22      | 3.03       | 2.93    | 2.51     | 24.98 |
+| FullSubNet+      | 10.64  | 11.50 | 2.80    | 1.99    | 0.86  | 3.02      | 2.93       | 2.82    | 2.38     | 24.11 |
+| TaylorSENet      | 12.18  | 13.04 | 3.06    | 2.33    | 0.88  | 2.76      | 2.92       | 2.65    | 2.24     | 23.46 |
+| GaGNet           | 12.20  | 13.17 | 2.95    | 2.27    | 0.87  | 2.78      | 2.86       | 2.64    | 2.21     | 23.36 |
+| G2Net            | 12.14  | 13.13 | 3.00    | 2.32    | 0.88  | 2.80      | 2.88       | 2.64    | 2.23     | 22.96 |
+| Inter-SubNet     | 12.07  | 13.01 | 3.15    | 2.28    | 0.88  | 3.34      | 3.11       | 3.04    | 2.64     | 20.07 |
+| SudoRMRF         | 12.99  | 13.86 | 2.61    | 2.01    | 0.85  | 3.91      | 2.80       | 2.98    | 1.93     | 88.72 |
 
 #### Efficiency Metrics
 
@@ -179,3 +179,11 @@ If you use this dataset in your research, please cite our repository as follows:
 ```
 
 Thank you for using LibriSpace! We hope it helps advance your research in speech enhancement and separation. For any questions or issues, please open an issue in our GitHub repository.
+
+## Contact
+
+If you have any concerns or technical problems, please contact `tsinghua.kaili@gmail.com`.
+
+## License
+
+This dataset is licensed under the [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
