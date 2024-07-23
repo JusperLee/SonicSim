@@ -6,7 +6,7 @@
   <strong>Kai Li<sup>1</sup>, Wendi Sang<sup>1</sup>, Chang Zeng<sup>2</sup>, Runxuan Yang<sup>1</sup>, Guo Chen<sup>1</sup>, Xiaolin Hu<sup>1</sup></strong><br>
     <strong><sup>1</sup>Tsinghua University, China</strong><br>
     <strong><sup>2</sup>National Institute of Informatics, Japan</strong><br>
-  <a href="http://example.com/paper">Paper</a> | <a href="http://example.com/demo">Demo</a>
+  <a href="#">Paper (Coming soon)</a> | <a href="https://cslikai.cn/LibriSpace/">Demo</a>
 </p>
 
 
