@@ -1,7 +1,6 @@
 <p align="center">
   <img src="asserts/logo.png" alt="Logo" width="200"/>
 </p>
-
 <p align="center">
   <strong>Kai Li<sup>1</sup>, Wendi Sang<sup>1</sup>, Chang Zeng<sup>2</sup>, Runxuan Yang<sup>1</sup>, Guo Chen<sup>1</sup>, Xiaolin Hu<sup>1</sup></strong><br>
     <strong><sup>1</sup>Tsinghua University, China</strong><br>
