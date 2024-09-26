@@ -1,0 +1,98 @@
+{
+    "source1": {
+        "audio": [
+            "5639-40744-0031.flac",
+            "5639-40744-0002.flac",
+            "5639-40744-0041.flac"
+        ],
+        "start_end_points": [
+            [
+                10261,
+                464981
+            ],
+            [
+                491192,
+                633752
+            ],
+            [
+                634231,
+                909431
+            ]
+        ],
+        "words": [
+            "SO PERSUASIVE WERE HER ENTREATIES AND SO STRONG HER ASSURANCES THAT NO HARM WHATEVER COULD RESULT TO THEM FROM THE INFORMATION SHE SOUGHT THEY WERE INDUCED TO CONFESS THAT ONE SUMMER'S NIGHT THE SAME SHE HAD MENTIONED THEMSELVES AND ANOTHER FRIEND BEING OUT ON A STROLL WITH RODOLFO THEY HAD BEEN CONCERNED IN THE ABDUCTION OF A GIRL WHOM RODOLFO CARRIED OFF WHILST THE REST OF THEM DETAINED HER FAMILY WHO MADE A GREAT OUTCRY AND WOULD HAVE DEFENDED HER IF THEY COULD",
+            "RODOLFO AND HIS COMPANIONS WITH THEIR FACES MUFFLED IN THEIR CLOAKS STARED RUDELY AND INSOLENTLY AT THE MOTHER THE DAUGHTER AND THE SERVANT MAID",
+            "NOR WAS RODOLFO LESS SURPRISED THAN THEY AND THE BETTER TO ASSURE HIMSELF OF SO WONDERFUL A FACT HE BEGGED LEOCADIA TO GIVE HIM SOME TOKEN WHICH SHOULD MAKE PERFECTLY CLEAR TO HIM THAT WHICH INDEED HE DID NOT DOUBT SINCE IT WAS AUTHENTICATED BY HIS PARENTS"
+        ]
+    },
+    "source2": {
+        "audio": [
+            "7729-102255-0014.flac",
+            "7729-102255-0032.flac"
+        ],
+        "start_end_points": [
+            [
+                148592,
+                233312
+            ],
+            [
+                383380,
+                707860
+            ]
+        ],
+        "words": [
+            "THE LEADERS OF THE CONSPIRACY BECAME DISTRUSTFUL OF THEIR POWER TO CRUSH THE TOWN",
+            "THE FREE STATE HOTEL A STONE BUILDING IN DIMENSIONS FIFTY BY SEVENTY FEET THREE STORIES HIGH AND HANDSOMELY FURNISHED PREVIOUSLY OCCUPIED ONLY FOR LODGING ROOMS ON THAT DAY FOR THE FIRST TIME OPENED ITS TABLE ACCOMMODATIONS TO THE PUBLIC AND PROVIDED A FREE DINNER IN HONOR OF THE OCCASION"
+        ]
+    },
+    "source3": {
+        "audio": [
+            "8455-210777-0064.flac",
+            "8455-210777-0048.flac",
+            "8455-210777-0003.flac",
+            "8455-210777-0058.flac"
+        ],
+        "start_end_points": [
+            [
+                15889,
+                77249
+            ],
+            [
+                234862,
+                289742
+            ],
+            [
+                327185,
+                498705
+            ],
+            [
+                533044,
+                647604
+            ]
+        ],
+        "words": [
+            "AND I HAVE NO ONE READY TO WHOM I CAN GIVE UP THE ARCHIVES OF THE GOVERNMENT",
+            "WHAT WOULD BECOME OF YOUR GUN WERE I TO KIDNAP YOU",
+            "AS I SPOKE I MADE HIM A GRACIOUS BOW AND I THINK I SHOWED HIM BY MY MODE OF ADDRESS THAT I DID NOT BEAR ANY GRUDGE AS TO MY INDIVIDUAL SELF",
+            "IT IS FOUNDED ON THE ACKNOWLEDGED WEAKNESS OF THOSE WHO SURVIVE THAT PERIOD OF LIFE AT WHICH MEN CEASE TO WORK"
+        ]
+    },
+    "noise": {
+        "audio": [],
+        "start_end_points": [
+            [
+                53765,
+                914999
+            ]
+        ]
+    },
+    "music": {
+        "audio": [],
+        "start_end_points": [
+            [
+                43454,
+                934962
+            ]
+        ]
+    }
+}
