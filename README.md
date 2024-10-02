@@ -16,7 +16,7 @@
 <p align="center">
 
 
-# SonicSim: A customizable simulation platform for speech models in moving sound source scenarios
+# SonicSim: A customizable simulation platform for speech processing in moving sound source scenarios
 
 We introduce SonicSim, a synthetic toolkit designed to generate highly customizable data for moving sound sources. SonicSim is developed based on the embodied AI simulation platform, Habitat-sim, supporting multi-level parameter adjustments, including scene-level, microphone-level, and source-level, thereby generating more diverse synthetic data. Leveraging SonicSim, we constructed a moving sound source benchmark dataset, SonicSet, using the LibriSpeech dataset, the Freesound Dataset 50k (FSD50K) and Free Music Archive (FMA), and 90 scenes from the Matterport3D to evaluate speech separation and enhancement models. 
 
