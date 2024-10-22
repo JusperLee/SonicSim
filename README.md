@@ -5,7 +5,7 @@
   <strong>Kai Li<sup>1</sup>, Wendi Sang<sup>1</sup>, Chang Zeng<sup>2</sup>, Runxuan Yang<sup>1</sup>, Guo Chen<sup>1</sup>, Xiaolin Hu<sup>1</sup></strong><br>
     <strong><sup>1</sup>Tsinghua University, China</strong><br>
     <strong><sup>2</sup>National Institute of Informatics, Japan</strong><br>
-  <a href="#">Paper (Coming soon)</a> | <a href="https://cslikai.cn/SonicSim/">Demo</a>
+  <a href="https://arxiv.org/abs/2410.01481">Paper</a> | <a href="https://cslikai.cn/SonicSim/">Demo</a>
 
 <p align="center">
   <img src="https://visitor-badge.laobi.icu/badge?page_id=JusperLee.SonicSim" alt="访客统计" />
@@ -21,6 +21,8 @@
 We introduce SonicSim, a synthetic toolkit designed to generate highly customizable data for moving sound sources. SonicSim is developed based on the embodied AI simulation platform, Habitat-sim, supporting multi-level parameter adjustments, including scene-level, microphone-level, and source-level, thereby generating more diverse synthetic data. Leveraging SonicSim, we constructed a moving sound source benchmark dataset, SonicSet, using the LibriSpeech dataset, the Freesound Dataset 50k (FSD50K) and Free Music Archive (FMA), and 90 scenes from the Matterport3D to evaluate speech separation and enhancement models. 
 
 ## 🔥 News
+
+- [2024-10-03] We release the paper on [arxiv](https://arxiv.org/abs/2410.01481)
 
 - [2024-10-01] We release the [Real-world speech separation dataset](#real-world-data), which aims to evaluate the performance of speech separation models in real-world scenarios.
 
