@@ -22,6 +22,8 @@ We introduce SonicSim, a synthetic toolkit designed to generate highly customiza
 
 ## 🔥 News
 
+- [2024-10-23] We release the training code for speech separation and enhancement models on the [SonicSet dataset](#sonicset-dataset).
+
 - [2024-10-03] We release the paper on [arxiv](https://arxiv.org/abs/2410.01481)
 
 - [2024-10-01] We release the [Real-world speech separation dataset](#real-world-data), which aims to evaluate the performance of speech separation models in real-world scenarios.
@@ -88,6 +90,26 @@ To set up the environment for training and inference, use the provided YAML file
 ```bash
 conda env create -f SonicSim/torch-2.0.yml
 conda activate SonicSim
+```
+
+### Training Speech Separation and Enhancement Models
+
+#### Training Speech Separation Models
+
+Navigate to the `separation` directory and run the training script with the specified configuration file:
+
+```bash
+cd separation
+python train.py --conf_dir=../sep-checkpoints/TFGNet-Noise/config.yaml
+```
+
+#### Training Speech Enhancement Models
+
+Navigate to the `enhancement` directory and run the training script with the specified configuration file:
+
+```bash
+cd enhancement
+python train.py --conf_dir=../enh-checkpoints/TaylorSENet-Noise/config.yaml
 ```
 
 ### Download Checkpoints
