@@ -144,3 +144,10 @@ enh-checkpoints/*
 sep-checkpoints/*
 
 *.DS_Store
+
+SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/*
+SonicSim-SonicSet/DnR/*
+SonicSim-SonicSet/LibriSpeech/test-clean/*
+SonicSim-SonicSet/LibriSpeech/val-clean/*
+SonicSim-SonicSet/LibriSpeech/train-clean-360/*
+SonicSim-SonicSet/mp3d/*

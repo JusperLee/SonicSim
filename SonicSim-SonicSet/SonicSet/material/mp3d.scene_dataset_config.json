@@ -1,0 +1,47 @@
+{
+  "stages": {
+    "paths": {
+      ".glb": [
+        "*/*.glb"
+      ]
+    },
+    "default_attributes": {
+      "shader_type": "flat",
+      "nav_asset": "%%CONFIG_NAME_AS_ASSET_FILENAME%%.navmesh",
+      "semantic_asset": "%%CONFIG_NAME_AS_ASSET_FILENAME%%_semantic.ply",
+      "semantic_descriptor_filename": "%%CONFIG_NAME_AS_ASSET_FILENAME%%.house",
+      "up": [
+        0,
+        0,
+        1
+      ],
+      "front": [
+        0,
+        1,
+        0
+      ],
+      "semantic_up": [
+        0,
+        1,
+        0
+      ],
+      "semantic_front": [
+        0,
+        0,
+        -1
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "objects": {},
+  "light_setups": {},
+  "scene_instances": {
+    "default_attributes": {
+      "default_lighting": "no_lights"
+    }
+  }
+}

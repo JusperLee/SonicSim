@@ -58,7 +58,7 @@ class MovingTrainDataset(Dataset):
         speaker_wavs = []
         speaker_id = random.sample(range(1, 4), self.num_spks)
         for idx in speaker_id:
-            speaker_wav, _ = torchaudio.load(speech_dir + '/s{}.wav'.format(idx))
+            speaker_wav, _ = torchaudio.load(speech_dir + '/moving_audio_{}.wav'.format(idx))
             if self.is_mono:
                 speaker_wav = speaker_wav.mean(dim=0)
             speaker_wavs.append(speaker_wav)
@@ -72,7 +72,7 @@ class MovingTrainDataset(Dataset):
             noise_types = [self.noise_type]
         
         for noise in noise_types:
-            noise_wav, _ = torchaudio.load(speech_dir + '/{}.wav'.format(noise))
+            noise_wav, _ = torchaudio.load(speech_dir + '/{}_audio.wav'.format(noise))
             if self.is_mono:
                 noise_wav = noise_wav.mean(dim=0)
             noise_wavs.append(noise_wav)
@@ -84,23 +84,23 @@ class MovingTrainDataset(Dataset):
         while True:
             if for_idx > 100:
                 break
-            start = random.randint(0, speaker_wav.size(1) - self.sample_rate * self.duration)
+            start = random.randint(0, speaker_wav.shape[-1] - self.sample_rate * self.duration)
             end = int(start + self.sample_rate * self.duration)
 
-            speaker_wav_tmp = speaker_wav[:, start:end]
-            
+            speaker_wav_tmp = speaker_wav[..., start:end]
+            # import pdb; pdb.set_trace()
             is_silence = 0
             for i in range(self.num_spks):
-                if compute_mch_rms_dB(speaker_wav_tmp[i]) > -40:
+                if compute_mch_rms_dB(speaker_wav_tmp[i]) < -40:
                     is_silence = 1
-                    break
             if is_silence == 1:
                 for_idx += 1
                 continue
             break
         
-        speaker_wav = speaker_wav[:, start:end]
-        noise_wav = noise_wav[:, start:end]
+        # print("start: ", start, "end: ", end)
+        speaker_wav = speaker_wav[..., start:end]
+        noise_wav = noise_wav[..., start:end]
         
         # Random SIR and SNR
         sirs = torch.Tensor(self.num_spks-1).uniform_(-6,6).numpy()
@@ -183,7 +183,7 @@ class MovingTestEvalDataset(Dataset):
         folder = self.data_dirs[idx]
         speaker_wavs = []
         for i in [self.num_spks[0], self.num_spks[1]]:
-            speaker_wav, _ = torchaudio.load(os.path.join(folder, 's{}.wav'.format(i+1)))
+            speaker_wav, _ = torchaudio.load(os.path.join(folder, 'moving_audio_{}.wav'.format(i+1)))
             if self.is_mono:
                 speaker_wav = speaker_wav.mean(dim=0)
             speaker_wavs.append(speaker_wav)

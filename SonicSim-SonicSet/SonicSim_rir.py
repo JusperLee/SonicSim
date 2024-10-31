@@ -21,6 +21,25 @@ from habitat.utils.visualizations import maps, utils
 from tqdm import tqdm
 import multiprocessing
 
+def clip_all(audio_list):
+    """
+    Clips all audio signals in a list to the same length.
+
+    Args: 
+        audio_list: List of audio signals.
+
+    Returns: 
+    - List of audio signals of the same length.
+    """
+
+    min_length = min(audio.shape[-1] for audio in audio_list)
+    clipped_audio_list = []
+    for audio in audio_list:
+        clipped_audio = audio[..., :min_length]
+        clipped_audio_list.append(clipped_audio)
+
+    return clipped_audio_list
+
 @contextmanager
 def suppress_stdout_and_stderr():
     """
@@ -169,9 +188,9 @@ class Scene:
 
         # Set audio material
         if use_default_material:
-            self.audio_material = './data/material/mp3d_material_config_default.json'
+            self.audio_material = 'SonicSet/material/mp3d_material_config_default.json'
         else:
-            self.audio_material = '/home/likai/data3/Soundspace-Data-Simulator/mp3d_material_config.json'
+            self.audio_material = 'SonicSet/material/mp3d_material_config.json'
 
         # Create simulation
         self.create_scene()
@@ -195,11 +214,8 @@ class Scene:
 
         # Set backend configuration
         backend_cfg = habitat_sim.SimulatorConfiguration()
-        # print(self.device.type)
-        # if self.device.type == 'cuda':
-        #     backend_cfg.gpu_device_id = 0
-        backend_cfg.scene_id = f'/home/likai/data3/mp3d/{self.room}/{self.room}.glb'
-        backend_cfg.scene_dataset_config_file = '/home/likai/data3/sound-spaces/data/scene_datasets/mp3d_example/mp3d.scene_dataset_config.json'
+        backend_cfg.scene_id = f'mp3d/{self.room}/{self.room}.glb'
+        backend_cfg.scene_dataset_config_file = 'SonicSet/material/mp3d.scene_dataset_config.json'
         backend_cfg.load_semantic_mesh = True
         backend_cfg.enable_physics = False
 
@@ -244,7 +260,7 @@ class Scene:
         sim = habitat_sim.Simulator(cfg)
 
         # set navmesh path for searching for navigatable points
-        navmesh = f'/home/likai/data3/mp3d/{self.room}/{self.room}.navmesh'
+        navmesh = f'mp3d/{self.room}/{self.room}.navmesh'
         sim.pathfinder.load_nav_mesh(navmesh)
 
         # seed for navmesh
@@ -368,7 +384,7 @@ class Scene:
             rotation = random.uniform(0, 360)  # only for mesh as source sound is omnidirectional
 
         # Randomly set source sound
-        dry_sound = "/home/likai/data3/LibriSpeech/test-clean/61/70968/61-70968-0000.flac"
+        dry_sound = ""
 
         # Set source
         source = Source(position, rotation, dry_sound, device=self.device)
@@ -581,20 +597,8 @@ class Scene:
                 dry_sound_list.append(dry_sound.detach().cpu())
                 audio_list.append(audio.detach().cpu())
 
-            # audio_total
-            # audio_total = sum_arrays_with_different_length(audio_list)
-
         # cpu
         ir_list = [tensor.detach().cpu() for tensor in ir_list]
-
-        # dirname = '.'
-        # with open(f'{dirname}/debug.txt', 'w') as f:
-        #     f.write(f'NavMesh area: {self.sim.pathfinder.navigable_area}\n')
-        #     f.write(f'NavMesh bounds: {self.sim.pathfinder.get_bounds()}\n')
-        #     f.write(f'Receiver position: {self.receiver.position}\n')
-        #     for s, source in enumerate(self.source_list):
-        #         f.write(f'Source {s} position: {source.position}\n')
-        #     f.write(f'\n')
 
         return dict(
             ir_list=ir_list,
@@ -652,9 +656,10 @@ def create_custom_arrayir(
         scene.add_audio_sensor()
         ir = scene.render_ir(0)
         multi_channels.append(ir)
-    scene.sim.close()
+        scene.sim.close()
     # Save file if dirname is given
-    multi_channels = torch.stack(multi_channels)
+    multi_channels = clip_all(multi_channels) 
+    multi_channels = torch.cat(multi_channels, dim=0)
     if filename is not None:
         torchaudio.save(filename, multi_channels, sample_rate=sample_rate)
     else:
@@ -756,20 +761,16 @@ def render_rir_parallel(room_list: T.List[str],
         progress_bar.update()
 
     ir_list = []
-    # 创建一个全局的进程池
     with multiprocessing.Pool(30) as pool:
         for batch_idx in range(num_batches):
-            # 计算当前批次的开始和结束索引
             start_idx = batch_idx * batch_size
             end_idx = min(start_idx + batch_size, num_points)
 
-            # 创建当前批次的数据
             if is_return:
                 batch = [(room_list[i], source_position_list[i], receiver_position_list[i], None, receiver_rotation_list[i]) for i in range(start_idx, end_idx)]
             else:
                 batch = [(room_list[i], source_position_list[i], receiver_position_list[i], filename_list[i], receiver_rotation_list[i]) for i in range(start_idx, end_idx)]
 
-            # 提交当前批次的任务
             tasks = []
             for room, source_position, receiver_position, filename, receiver_rotation in batch:
                 if channel_type == "CustomArrayIR":
@@ -778,11 +779,10 @@ def render_rir_parallel(room_list: T.List[str],
                     task = pool.apply_async(render_ir, args=(room, source_position, receiver_position, filename, receiver_rotation, sample_rate, use_default_material, channel_type, channel_order), callback=update_progress)
                 tasks.append(task)
 
-            # 等待当前批次的所有任务完成
             for task in tasks:
                 if is_return:
-                    ir = task.get()  # 阻塞直到结果准备好
-                    ir_list.append(ir)  # 将结果添加到列表
+                    ir = task.get()
+                    ir_list.append(ir)
                 else:
                     task.get()
     if is_return:
@@ -886,33 +886,34 @@ def display_map(
             if i == 0:
                 # receiver
                 print(f"receiver: {point}")
-                image = plt.imread('/home/likai/data3/moving-audio/imgs/mic.png')
+                image = plt.imread('SonicSet/imgs/mic.png')
                 image_marker(image, (point[0], point[1]), ax)
                 # plt.plot(point[0], point[1], color='red', marker='o', markersize=10)
 
-            if i in [1, 2]:
+            if i in [1, 2, 3]:
                 # speaker voice
                 print(f"speaker {i}: {point}")
-                image = plt.imread(f'/home/likai/data3/moving-audio/imgs/{i}.png')
+                image = plt.imread(f'SonicSet/imgs/{i}.png')
                 image_marker(image, (point[0], point[1]), ax)
                 # plt.plot(point[0], point[1], color='red', marker='o', markersize=10)
                 
-            if i in [3]:
+            if i in [4]:
                 # noise
                 print(f"noise: {point}")
-                image = plt.imread(f'/home/likai/data3/moving-audio/imgs/noise.png')
+                image = plt.imread(f'SonicSet/imgs/noise.png')
                 image_marker(image, (point[0], point[1]), ax)
 
-            if i in [4]:
+            if i in [5]:
                 # music
                 print(f"music: {point}")
-                image = plt.imread(f'/home/likai/data3/moving-audio/imgs/music.png')
+                image = plt.imread(f'SonicSet/imgs/music.png')
                 image_marker(image, (point[0], point[1]), ax)
     else:
         raise ValueError("key_points must be provided.")
     
     ax.plot([], [], color='red', label='Speaker 1')
     ax.plot([], [], color='blue', label='Speaker 2')
+    ax.plot([], [], color='green', label='Speaker 3')
     ax.legend()
     if filename is not None:
         plt.savefig(filename)
@@ -1064,12 +1065,6 @@ def get_nav_idx(scene: Scene,
     """
     Randomly select start and end points and get the navigation index
     """
-    # scene = Scene(
-    #     room,
-    #     [None],  # placeholder for source class
-    #     include_visual_sensor=False,
-    #     device=torch.device('cpu')
-    # )
     
     found_path = False
     while not found_path:
@@ -1079,8 +1074,6 @@ def get_nav_idx(scene: Scene,
         path.requested_end = end_points
         found_path = scene.sim.pathfinder.find_path(path)
         nav_points = path.points
-    # import pdb; pdb.set_trace()
-    # receiver_idx_list = tool_utils.find_matching_indices(grid_points, nav_points)
     
     return nav_points
     

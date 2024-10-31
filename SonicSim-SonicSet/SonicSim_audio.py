@@ -308,8 +308,8 @@ def create_background_audio(audio_path: str, length: float, sample_rate: int = 1
             try:
                 long_audio[:, random_start+current_duration:int(length * sample_rate) - random_end] += audio[:, random_start:int(length * sample_rate) - random_end - current_duration]
             except:
-                import pdb; pdb.set_trace()
-            break
+                # import pdb; pdb.set_trace()
+                break
         
         if current_duration + audio.shape[-1] < int(length * sample_rate):
             start_end_points.append((current_duration, current_duration+audio.shape[-1]))

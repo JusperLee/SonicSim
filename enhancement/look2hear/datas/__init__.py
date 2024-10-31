@@ -1,4 +1,4 @@
-from .movingdatamodule_remix import MovingDataModuleRemix
+from .movingdatamodule import MovingDataModuleRemix
 
 __all__ = [
     "MovingDataModuleRemix"

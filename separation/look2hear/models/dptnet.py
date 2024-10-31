@@ -717,6 +717,13 @@ class DPTNetModel(BaseModel):
         self.decoder = decoder
         
     def forward(self, input):
+        # input shape: (B, C, T)
+        if input.ndim == 1:
+            input = input.unsqueeze(0)
+        if input.ndim == 2:
+            input = input
+        if input.ndim == 3:
+            input = input.squeeze(1)
         feature, ilens = self.encoder(input, input.shape[-1])
         masked, _, _ = self.separator(feature, ilens)
         # import pdb; pdb.set_trace()

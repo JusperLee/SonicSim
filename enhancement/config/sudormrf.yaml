@@ -1,0 +1,85 @@
+exp: 
+  dir: Exps/
+  name: SudoRMRF
+
+# seed: 614020
+
+datas:
+  _target_: look2hear.datas.MovingDataModuleRemix
+  train_dir: ../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/train
+  val_dir: ../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/val-enh-noise
+  test_dir: ../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/test
+  num_spks: 1
+  sample_rate: 16000
+  num_samples: 50000
+  duration: 4.0
+  batch_size: 9
+  num_workers: 8
+  is_mono: true
+  noise_type: noise
+
+
+model:
+  _target_: look2hear.models.sudormrf.SuDORMRF
+  out_channels: 256
+  in_channels: 512
+  num_blocks: 8
+  upsampling_depth: 7
+  enc_kernel_size: 81
+  enc_num_basis: 512
+  num_sources: 1
+
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.001
+  weight_decay: 0.
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  patience: 5
+  factor: 0.5
+
+loss:
+  _target_: look2hear.losses.DCCRNLoss
+  
+metrics:
+  _target_: look2hear.losses.DCCRNEval
+  
+
+system:
+  _target_: look2hear.system.audio_litmodule.AudioLightningModule
+
+early_stopping:
+  _target_: pytorch_lightning.callbacks.EarlyStopping
+  monitor: val_loss
+  patience: 10
+  mode: min
+  verbose: true
+
+checkpoint:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  dirpath: ${exp.dir}/${exp.name}/checkpoints
+  monitor: val_loss
+  mode: min
+  verbose: true
+  save_top_k: 5
+  save_last: true
+  filename: '{epoch}-{val_loss:.4f}'
+
+logger:
+  _target_: pytorch_lightning.loggers.WandbLogger
+  name: ${exp.name}
+  save_dir: ${exp.dir}/${exp.name}/logs
+  offline: false
+  project: MovingData-Enhencement
+
+trainer:
+  _target_: pytorch_lightning.Trainer
+  devices: [0]
+  max_epochs: 500
+  sync_batchnorm: true
+  gradient_clip_val: 10.0
+  default_root_dir: ${exp.dir}/${exp.name}/
+  accelerator: cuda
+  limit_train_batches: 1.0
+  fast_dev_run: false

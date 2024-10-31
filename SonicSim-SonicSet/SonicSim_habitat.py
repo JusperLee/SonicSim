@@ -2,7 +2,7 @@ import os
 import typing as T
 import torch
 import numpy as np
-from SonicSim_habitat import Scene
+from SonicSim_rir import Scene
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from rich import print

@@ -22,7 +22,9 @@ We introduce SonicSim, a synthetic toolkit designed to generate highly customiza
 
 ## 🔥 News
 
-- [2024-10-23] We release the training code for speech separation and enhancement models on the [SonicSet dataset](#sonicset-dataset).
+- [2024-10-30] We fixed the bugs for installing the environment and updated the training code for speech separation and enhancement models on the [SonicSet dataset](#sonicset-dataset).
+
+- [2024-10-23] We release the `training code` for speech separation and enhancement models on the [SonicSet dataset](#sonicset-dataset).
 
 - [2024-10-03] We release the paper on [arxiv](https://arxiv.org/abs/2410.01481)
 
@@ -88,11 +90,34 @@ To construct the dataset yourself, please refer to the README in the `SonicSim-S
 To set up the environment for training and inference, use the provided YAML file:
 
 ```bash
-conda env create -f SonicSim/torch-2.0.yml
-conda activate SonicSim
+conda create -n SonicSim-Train python=3.10
+conda activate SonicSim-Train
+pip install Cython==3.0.10 numpy==1.26.4
+pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
+pip install -r requirements.txt -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
 ### Training Speech Separation and Enhancement Models
+
+#### Generate Separation Fixed Validation and Test Set
+
+Navigate to the `separation` directory and run the following script to generate the fixed validation set:
+
+```bash
+cd separation
+python generate_fixed_validation.py --raw_dir=../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/val --save_dir=../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/val-sep-2 --is_mono
+python generate_fixed_test.py --raw_dir=/home/pod/SonicSim/SonicSim/SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/test --is_mono
+```
+
+#### Generate Enhancement Fixed Validation Set
+
+Navigate to the `enhancement` directory and run the following script to generate the fixed validation set:
+
+```bash
+cd enhancement
+python generate_fixed_validation.py --raw_dir=../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/val --save_dir=../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/val-enh-noise --is_mono
+python generate_fixed_test.py --raw_dir=/home/pod/SonicSim/SonicSim/SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/test --is_mono
+```
 
 #### Training Speech Separation Models
 
@@ -100,7 +125,7 @@ Navigate to the `separation` directory and run the training script with the spec
 
 ```bash
 cd separation
-python train.py --conf_dir=../sep-checkpoints/TFGNet-Noise/config.yaml
+python train.py --conf_dir=configs/afrcnn.yaml
 ```
 
 #### Training Speech Enhancement Models
@@ -109,7 +134,7 @@ Navigate to the `enhancement` directory and run the training script with the spe
 
 ```bash
 cd enhancement
-python train.py --conf_dir=../enh-checkpoints/TaylorSENet-Noise/config.yaml
+python train.py --conf_dir=config/dccrn.yaml
 ```
 
 ### Download Checkpoints

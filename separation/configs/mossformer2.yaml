@@ -1,0 +1,95 @@
+exp: 
+  dir: Exps/
+  name: MossFormer2
+
+datas:
+  _target_: look2hear.datas.MovingDataModule
+  train_dir: ../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/train
+  val_dir: ../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/val-sep-2
+  test_dir: ../SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/test
+  num_spks: 2
+  sample_rate: 16000
+  num_samples: 50000
+  duration: 4.0
+  batch_size: 1
+  num_workers: 8
+  is_mono: true
+  noise_type: noise
+
+model:
+  _target_: look2hear.models.mossformer2.MossFormer2
+  in_channels: 512
+  out_channels: 512
+  num_blocks: 24
+  kernel_size: 16
+  norm: ln
+  num_spks: 2
+  skip_around_intra: True
+  use_global_pos_enc: True
+  max_length: 20000
+
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.00015
+  weight_decay: 0.0
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  patience: 10
+  factor: 0.5
+
+loss:
+  _target_: look2hear.losses.PITLossWrapper
+  loss_func:
+    _target_: look2hear.losses.PairwiseNegSDR
+    sdr_type: snr
+  pit_from: pw_mtx
+  threshold_byloss: false
+  
+metrics:
+  _target_: look2hear.losses.PITLossWrapper
+  loss_func:
+    _target_: look2hear.losses.PairwiseNegSDR
+    sdr_type: sisdr
+  pit_from: pw_mtx
+  threshold_byloss: false
+  
+
+system:
+  _target_: look2hear.system.audio_litmodule.AudioLightningModule
+
+early_stopping:
+  _target_: pytorch_lightning.callbacks.EarlyStopping
+  monitor: val_loss
+  patience: 20
+  mode: min
+  verbose: true
+
+checkpoint:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  dirpath: ${exp.dir}/${exp.name}/checkpoints
+  monitor: val_loss
+  mode: min
+  verbose: true
+  save_top_k: 5
+  save_last: true
+  filename: '{epoch}-{val_loss:.4f}'
+
+logger:
+  _target_: pytorch_lightning.loggers.WandbLogger
+  name: ${exp.name}
+  save_dir: ${exp.dir}/${exp.name}/logs
+  offline: false
+  project: MovingData
+
+trainer:
+  _target_: pytorch_lightning.Trainer
+  devices: [0]
+  max_epochs: 500
+  sync_batchnorm: true
+  gradient_clip_val: 5.0
+  default_root_dir: ${exp.dir}/${exp.name}/
+  accelerator: cuda
+  limit_train_batches: 1.0
+  fast_dev_run: false
+  
