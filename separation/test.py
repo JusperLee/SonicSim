@@ -55,7 +55,7 @@ def test(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     else:
         cfg.model.pop("_target_", None)
         model = look2hear.models.ConvTasNet.from_pretrain(os.path.join(cfg.exp.dir, cfg.exp.name, "best_model.pth"), **cfg.model).cuda()
-    vad_model = Pipeline.from_pretrained("pyannote/voice-activity-detection", use_auth_token="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", cache_dir="./huggingface_models")
+    vad_model = Pipeline.from_pretrained("pyannote/voice-activity-detection", use_auth_token="AUTH_TOKEN", cache_dir="./huggingface_models")
     initial_params = {"onset": 0.3, "offset": 0.2,
                   "min_duration_on": 0.0, "min_duration_off": 0.0}
     vad_model.instantiate(initial_params)
