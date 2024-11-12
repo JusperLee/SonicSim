@@ -1,4 +1,4 @@
-from .tdanet import TDANet
+from .TDANet import TDANet
 from .afrcnn import AFRCNN
 from .sudormrf import SuDORMRF
 from .ConvTasnet import ConvTasNet
