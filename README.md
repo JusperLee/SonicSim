@@ -203,3 +203,13 @@ We would like to express our gratitude to the following:
 ![CC BY-SA 4.0 License](https://licensebuttons.net/l/by-sa/4.0/88x31.png)
 
 This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+## Citation
+```misc
+@article{li2024sonicsim,
+  title={SonicSim: A customizable simulation platform for speech processing in moving sound source scenarios},
+  author={Li, Kai and Sang, Wendi and Zeng, Chang and Yang, Runxuan and Chen, Guo and Hu, Xiaolin},
+  journal={arXiv preprint arXiv:2410.01481},
+  year={2024}
+}
+```
