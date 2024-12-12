@@ -22,17 +22,19 @@ We introduce SonicSim, a synthetic toolkit designed to generate highly customiza
 
 ## 🔥 News
 
-- [2024-10-30] We fixed the bugs for installing the environment and updated the training code for speech separation and enhancement models on the [SonicSet dataset](#sonicset-dataset).
+- [2024-12-12] We have released a [Docker image](https://hub.docker.com/layers/jusperlee1/sonicsim/v1.0/images/sha256-57c90144245421929de02d9557e144487d686b4f41f723942a89e1e0c3482fa0?context=explore) and updated SonicSim to a CUDA version, enabling faster data generation.
 
-- [2024-10-23] We release the `training code` for speech separation and enhancement models on the [SonicSet dataset](#sonicset-dataset).
+- [2024-10-30] We have fixed the bugs for installing the environment and updated the training code for speech separation and enhancement models on the [SonicSet dataset](#sonicset-dataset).
 
-- [2024-10-03] We release the paper on [arxiv](https://arxiv.org/abs/2410.01481)
+- [2024-10-23] We have released the `training code` for speech separation and enhancement models on the [SonicSet dataset](#sonicset-dataset).
 
-- [2024-10-01] We release the [Real-world speech separation dataset](#real-world-data), which aims to evaluate the performance of speech separation models in real-world scenarios.
+- [2024-10-03] We have released the paper on [arxiv](https://arxiv.org/abs/2410.01481)
 
-- [2024-07-31] We release the `SonicSim dataset`, which includes speech separation and enhancement tasks.
+- [2024-10-01] We have released the [Real-world speech separation dataset](#real-world-data), which aims to evaluate the performance of speech separation models in real-world scenarios.
 
-- [2024-07-24] We release the scripts for `dataset construction` and the [pre-trained models](https://github.com/JusperLee/SonicSim/releases/tag/v1.0) for `speech separation and enhancement`.
+- [2024-07-31] We have released the `SonicSim dataset`, which includes speech separation and enhancement tasks.
+
+- [2024-07-24] We have release the scripts for `dataset construction` and the [pre-trained models](https://github.com/JusperLee/SonicSim/releases/tag/v1.0) for `speech separation and enhancement`.
 
 ## <img src="asserts/logo.png" alt="Logo" width="5%"/> SonicSim Platform
 
@@ -48,6 +50,18 @@ We introduce SonicSim, a synthetic toolkit designed to generate highly customiza
 -	Microphone Configurations: Offers a wide range of microphone setups, including mono, binaural, and Ambisonics, along with support for custom linear and circular microphone arrays.
 
 -	Source and Microphone Positioning: Provides customization or randomization of sound source and microphone positions. Supports motion trajectories for moving sound source simulations, adding realism to dynamic acoustic scenarios.
+
+### SonicSim Platform Docker
+
+We are excited to introduce the SonicSim Platform Docker, featuring a CUDA-enabled version of SonicSim for faster and more efficient data generation. You can quickly set it up with the following commands:
+
+```shell
+docker pull jusperlee1/sonicsim:v1.0
+docker run -i -t --gpus all --shm-size=20g --name sonicsim jusperlee1/sonicsim:v1.0
+```
+
+This setup leverages GPU acceleration to maximize performance and streamline your workflow. Get started now and experience the improved efficiency!
+
 
 ## <img src="asserts/monitoring.png" alt="Logo" width="5%"/> SonicSet Dataset
 
