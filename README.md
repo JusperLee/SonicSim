@@ -22,7 +22,7 @@ We introduce SonicSim, a synthetic toolkit designed to generate highly customiza
 
 ## 🔥 News
 
-- [2024-12-12] We have released a [Docker image](https://hub.docker.com/layers/jusperlee1/sonicsim/v1.0/images/sha256-57c90144245421929de02d9557e144487d686b4f41f723942a89e1e0c3482fa0?context=explore) and updated SonicSim to a CUDA version, enabling faster data generation.
+- [2024-12-12] 🔥🔥🔥 We have released a [Docker image](https://hub.docker.com/layers/jusperlee1/sonicsim/v1.0/images/sha256-57c90144245421929de02d9557e144487d686b4f41f723942a89e1e0c3482fa0?context=explore) and updated SonicSim to a CUDA version, enabling faster data generation.
 
 - [2024-10-30] We have fixed the bugs for installing the environment and updated the training code for speech separation and enhancement models on the [SonicSet dataset](#sonicset-dataset).
 
