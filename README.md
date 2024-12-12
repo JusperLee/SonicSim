@@ -58,6 +58,7 @@ We are excited to introduce the SonicSim Platform Docker, featuring a CUDA-enabl
 ```shell
 docker pull jusperlee1/sonicsim:v1.0
 docker run -i -t --gpus all --shm-size=20g --name sonicsim jusperlee1/sonicsim:v1.0
+conda activate SonicSim
 ```
 
 This setup leverages GPU acceleration to maximize performance and streamline your workflow. Get started now and experience the improved efficiency!
