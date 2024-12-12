@@ -242,7 +242,13 @@ def create_long_audio(audio_path: str, length: float, sample_rate: int = 16000) 
     # import pdb; pdb.set_trace()
     audio_path_list = get_random_wav_path(audio_path, int(length * sample_rate))
     audio_name = [os.path.basename(audio_path_) for audio_path_ in audio_path_list]
-    audios = [torchaudio.load(audio_path_)[0] for audio_path_ in audio_path_list]
+    audios = []
+    for audio_path in audio_path_list:
+        waveform, sr = torchaudio.load(audio_path)
+        if sr != sample_rate:
+            resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=sample_rate)
+            waveform = resampler(waveform)
+        audios.append(waveform)
     long_audio = torch.zeros((1, int(length * sample_rate)), device=audios[0].device)
     
     start_end_points = []
@@ -261,7 +267,8 @@ def create_long_audio(audio_path: str, length: float, sample_rate: int = 16000) 
             start_end_points.append((current_duration+silence.shape[-1], current_duration+audio.shape[-1]))
             long_audio[:, current_duration:current_duration+audio.shape[-1]] += audio
             current_duration += audio.shape[-1]
-            audio_name_list.append(audio_name[random_idx])
+            audio_name_list.append(audio_path_list[random_idx])
+            audio_path_list.pop(random_idx)
             audios.pop(random_idx)
             audio_name.pop(random_idx)
         else:
@@ -283,7 +290,13 @@ def create_background_audio(audio_path: str, length: float, sample_rate: int = 1
     print("create_background_audio: ", audio_path)
     audio_path_list = get_random_wav_path_from_json(audio_path, int(length * sample_rate), threshold=0.4)
     audio_name = [os.path.basename(audio_path) for audio_path in audio_path_list]
-    audios = [torchaudio.load(audio_path)[0] for audio_path in audio_path_list]
+    audios = []
+    for audio_path in audio_path_list:
+        waveform, sr = torchaudio.load(audio_path)
+        if sr != sample_rate:
+            resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=sample_rate)
+            waveform = resampler(waveform)
+        audios.append(waveform)
     long_audio = torch.zeros((1, int(length * sample_rate)), device=audios[0].device)
     
     start_end_points = []
@@ -294,7 +307,7 @@ def create_background_audio(audio_path: str, length: float, sample_rate: int = 1
             break
         random_idx = random.randint(0, len(audios)-1)
         audio = audios[random_idx]
-        
+        # import pdb; pdb.set_trace()
         if audio.shape[0] == 2:
             audio = audio.mean(dim=0, keepdim=True)
         
@@ -305,6 +318,9 @@ def create_background_audio(audio_path: str, length: float, sample_rate: int = 1
             random_start = random.randint(0, (int((length * sample_rate - current_duration)*0.1)))
             random_end = random.randint(0, (int((length * sample_rate - current_duration)*0.1)))
             start_end_points.append((random_start+current_duration, int(length * sample_rate) - random_end))
+            audio_name_list.append(audio_path_list[random_idx])
+            audio_path_list.pop(random_idx)
+            audios.pop(random_idx)
             try:
                 long_audio[:, random_start+current_duration:int(length * sample_rate) - random_end] += audio[:, random_start:int(length * sample_rate) - random_end - current_duration]
             except:
@@ -315,7 +331,8 @@ def create_background_audio(audio_path: str, length: float, sample_rate: int = 1
             start_end_points.append((current_duration, current_duration+audio.shape[-1]))
             long_audio[:, current_duration:current_duration+audio.shape[-1]] += audio
             current_duration += audio.shape[-1]
-            audio_name_list.append(audio_name[random_idx])
+            audio_name_list.append(audio_path_list[random_idx])
+            audio_path_list.pop(random_idx)
             audios.pop(random_idx)
         else:
             break

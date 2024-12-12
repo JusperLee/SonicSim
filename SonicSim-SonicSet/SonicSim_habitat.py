@@ -22,7 +22,7 @@ def save_xy_grid_points(room: str,
         room,
         [None],  # placeholder for source class
         include_visual_sensor=False,
-        device=torch.device('cpu')
+        device=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     )
     grid_points = scene.generate_xy_grid_points(grid_distance, filename_png=filename_png)
     room_size = scene.sim.pathfinder.navigable_area

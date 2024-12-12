@@ -22,6 +22,7 @@ Clone and install `habitat-sim`:
 ```bash
 git clone https://github.com/facebookresearch/habitat-sim.git
 cd habitat-sim
+git checkout RLRAudioPropagationUpdate
 pip install -r requirements.txt
 python setup.py install --headless --audio
 cd ..

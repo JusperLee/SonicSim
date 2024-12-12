@@ -144,6 +144,7 @@ enh-checkpoints/*
 sep-checkpoints/*
 
 *.DS_Store
+*.csv
 
 SonicSim-SonicSet/SonicSet/scene_datasets/mp3d/*
 SonicSim-SonicSet/DnR/*

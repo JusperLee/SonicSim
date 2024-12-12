@@ -5,14 +5,13 @@ warnings.filterwarnings("ignore", category=UserWarning)
 import torch
 import torchaudio
 import numpy as np
-from moviepy.editor import *
 import gc
 from rich import print
 import time
 
 os.environ["MAGNUM_LOG"] = "quiet"
 os.environ["HABITAT_SIM_LOG"] = "quiet"
-os.environ["CUDA_VISIBLE_DEVICES"] = "8"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 import habitat_sim.sim
 import SonicSim_rir
@@ -24,23 +23,19 @@ import multiprocessing
 import logging
 
 def process_single(scene, sample_rate, novel_path_config, channel_type, mic_array_list, results_dir, source1_path, source2_path, source3_path, noise_path, music_path, transcripts):
-    """
-    Save:
-    ├── {results_demo} = SonicSet/{mode}/{room}/{spk1-id}-{spk2-id}
-    │   ├── video/
-    │   │   ├── moving_audio.wav    : Audio interpolated for the moving receiver.
-    │   │   ├── moving_audio_1.wav  : Audio interpolated specifically for source 1.
-    │   │   ├── moving_audio_2.wav  : Audio interpolated specifically for source 2.
-    │   │   ├── moving_video.mp4    : Video visualization of movement (no audio).
-    │   │   ├── nvas.mp4            : NVAS video results with combined audio.
-    │   │   ├── nvas_source1.mp4    : NVAS video results for only source 1 audio.
-    │   │   ├── nvas_source2.mp4    : NVAS video results for only source 2 audio.
-    │   │   └── rgb_receiver.png    : A rendered view from the perspective of the receiver.
-    """
     # Constants
     sample_rate = sample_rate
     novel_path_config = novel_path_config
     channel_type = channel_type
+    
+    # Extract and load room and grid related data
+    room = scene
+    scene = SonicSim_rir.Scene(
+        room,
+        [None],  # placeholder for source class
+        include_visual_sensor=False,
+        device=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    )
     
     spks_nav_points = [SonicSim_rir.get_nav_idx(scene, distance_threshold=5.0) for _ in range(3)]
     spks_nav_mid_points = [spks_nav_points[i][len(spks_nav_points[i]) // 2] for i in range(3)]
@@ -50,11 +45,11 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
     print(noise_music_points)
     grid_points = [spks_nav_points, mic_points, noise_music_points]
     SonicSim_rir.save_trace_gif(scene, "./trace.png", grid_points)
-
+    scene.sim.close()
     # Generate RIRs
     output_dir = f'{results_dir}'
     os.makedirs(output_dir, exist_ok=True)
-    ir_save_dir = f'{output_dir}/ir_save_{novel_path_config}_{channel_type}.pt'
+    ir_save_dir = f'{output_dir}/rir_save_{novel_path_config}_{channel_type}.pt'
     
     # Merge spks_nav_points
     merge_spks_nav_points = []
@@ -66,7 +61,7 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
         ir_output = SonicSim_audio.generate_rir_combination(
                 room, spks_nav_points[i], [mic_points], [90], mic_array_list, channel_type
         )
-        ir_outputs.append(ir_output)
+        ir_outputs.append(ir_output.cpu())
         del ir_output
         gc.collect()
         
@@ -88,11 +83,15 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
     music_audio, music_start_end, music_audioname = SonicSim_audio.create_background_audio(music_path, 60)
     
     # Get rir for noise and music
-    rir_noise = SonicSim_rir.render_ir(room, noise_music_points[0], mic_points, filename=None, receiver_rotation=90, channel_type=channel_type, channel_order=0)
-    rir_music = SonicSim_rir.render_ir(room, noise_music_points[1], mic_points, filename=None, receiver_rotation=90, channel_type=channel_type, channel_order=0)
+    if channel_type == 'CustomArrayIR':
+        rir_noise = SonicSim_rir.create_custom_arrayir(room, noise_music_points[0], mic_points, mic_array=mic_array_list, filename=None, receiver_rotation=90, channel_order=0)
+        rir_music = SonicSim_rir.create_custom_arrayir(room, noise_music_points[1], mic_points, mic_array=mic_array_list, filename=None, receiver_rotation=90, channel_order=0)
+    else:
+        rir_noise = SonicSim_rir.render_ir(room, noise_music_points[0], mic_points, filename=None, receiver_rotation=90, channel_type=channel_type, channel_order=0)
+        rir_music = SonicSim_rir.render_ir(room, noise_music_points[1], mic_points, filename=None, receiver_rotation=90, channel_type=channel_type, channel_order=0)
 
-    rir_noise = torch.from_numpy(SonicSim_moving.convolve_fixed_receiver(noise_audio, rir_noise))
-    rir_music = torch.from_numpy(SonicSim_moving.convolve_fixed_receiver(music_audio, rir_music))
+    rir_noise = torch.from_numpy(SonicSim_moving.convolve_fixed_receiver(noise_audio, rir_noise.cpu()))
+    rir_music = torch.from_numpy(SonicSim_moving.convolve_fixed_receiver(music_audio, rir_music.cpu()))
 
     # Save audio
     receiver_audio_1 = SonicSim_audio.get_lufs_norm_audio(receiver_audio_1.transpose(0,1).numpy(), sample_rate, -17)[0]
@@ -106,23 +105,23 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
     torchaudio.save(f'{output_dir}/noise_audio.wav', torch.from_numpy(rir_noise).transpose(0,1), sample_rate=sample_rate)
     torchaudio.save(f'{output_dir}/music_audio.wav', torch.from_numpy(rir_music).transpose(0,1), sample_rate=sample_rate)
     
-    SonicSim_rir.save_trace_gif(scene, f"{output_dir}/trace.png", grid_points)
+    # SonicSim_rir.save_trace_gif(scene, f"{output_dir}/trace.png", grid_points)
     
     json_dicts = {
         'source1': {
             'audio': audioname1,
             'start_end_points': start_end_points1,
-            'words': [transcripts[name] for name in audioname1]
+            'words': [transcripts[os.path.basename(name)] for name in audioname1]
         },
         'source2': {
             'audio': audioname2,
             'start_end_points': start_end_points2,
-            'words': [transcripts[name] for name in audioname2]
+            'words': [transcripts[os.path.basename(name)] for name in audioname2]
         },
         'source3': {
             'audio': audioname3,
             'start_end_points': start_end_points3,
-            'words': [transcripts[name] for name in audioname3]
+            'words': [transcripts[os.path.basename(name)] for name in audioname3]
         },
         'noise': {
             'audio': noise_audioname,
@@ -196,16 +195,7 @@ if __name__ == "__main__":
                 speech_list = removing_exist_speaker(f"SonicSet/{mode}/{scene}", speech_list)
                 logging.info(f"Removing, {len(speech_list)} exist speakers")
                 
-            # Extract and load room and grid related data
-            room = scene
-            loaded_scene = SonicSim_rir.Scene(
-                room,
-                [None],  # placeholder for source class
-                include_visual_sensor=False,
-                device=torch.device('cpu')
-            )
-            
-            while len(speech_list) > 3:
+            while len(speech_list) >= 3:
                 start_time = time.time()
                 selected_speech = np.random.choice(speech_list, 3, replace=False)
                 speech_list = [speech for speech in speech_list if speech not in selected_speech]
@@ -224,6 +214,8 @@ if __name__ == "__main__":
                 end_time = time.time()
                 logging.info(f"Time elapsed: {(end_time - start_time)/60} min, Length of speech list: {len(speech_list)}")
                 total_time += (end_time - start_time)/60
+                torch.cuda.empty_cache()
+                gc.collect()
             logging.info("Total time: {} min".format(total_time))
                 
                 

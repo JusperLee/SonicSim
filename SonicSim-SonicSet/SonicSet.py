@@ -5,7 +5,6 @@ warnings.filterwarnings("ignore", category=UserWarning)
 import torch
 import torchaudio
 import numpy as np
-from moviepy.editor import *
 import gc
 from rich import print
 import time
@@ -20,23 +19,10 @@ import SonicSim_habitat
 import SonicSim_audio
 import SonicSim_moving
 import tool_utils
-import multiprocessing
+import torch.multiprocessing as mp
 import logging
 
 def process_single(scene, sample_rate, novel_path_config, channel_type, mic_array_list, results_dir, source1_path, source2_path, source3_path, noise_path, music_path, transcripts):
-    """
-    Save:
-    ├── {results_demo} = SonicSet/{mode}/{room}/{spk1-id}-{spk2-id}
-    │   ├── video/
-    │   │   ├── moving_audio.wav    : Audio interpolated for the moving receiver.
-    │   │   ├── moving_audio_1.wav  : Audio interpolated specifically for source 1.
-    │   │   ├── moving_audio_2.wav  : Audio interpolated specifically for source 2.
-    │   │   ├── moving_video.mp4    : Video visualization of movement (no audio).
-    │   │   ├── nvas.mp4            : NVAS video results with combined audio.
-    │   │   ├── nvas_source1.mp4    : NVAS video results for only source 1 audio.
-    │   │   ├── nvas_source2.mp4    : NVAS video results for only source 2 audio.
-    │   │   └── rgb_receiver.png    : A rendered view from the perspective of the receiver.
-    """
     # Constants
     sample_rate = sample_rate
     novel_path_config = novel_path_config
@@ -48,7 +34,7 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
         room,
         [None],  # placeholder for source class
         include_visual_sensor=False,
-        device=torch.device('cpu')
+        device=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     )
     
     spks_nav_points = [SonicSim_rir.get_nav_idx(scene, distance_threshold=5.0) for _ in range(3)]
@@ -75,7 +61,7 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
         ir_output = SonicSim_audio.generate_rir_combination(
                 room, spks_nav_points[i], [mic_points], [90], mic_array_list, channel_type
         )
-        ir_outputs.append(ir_output)
+        ir_outputs.append(ir_output.cpu())
         del ir_output
         gc.collect()
         
@@ -104,8 +90,8 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
         rir_noise = SonicSim_rir.render_ir(room, noise_music_points[0], mic_points, filename=None, receiver_rotation=90, channel_type=channel_type, channel_order=0)
         rir_music = SonicSim_rir.render_ir(room, noise_music_points[1], mic_points, filename=None, receiver_rotation=90, channel_type=channel_type, channel_order=0)
 
-    rir_noise = torch.from_numpy(SonicSim_moving.convolve_fixed_receiver(noise_audio, rir_noise))
-    rir_music = torch.from_numpy(SonicSim_moving.convolve_fixed_receiver(music_audio, rir_music))
+    rir_noise = torch.from_numpy(SonicSim_moving.convolve_fixed_receiver(noise_audio, rir_noise.cpu()))
+    rir_music = torch.from_numpy(SonicSim_moving.convolve_fixed_receiver(music_audio, rir_music.cpu()))
 
     # Save audio
     receiver_audio_1 = SonicSim_audio.get_lufs_norm_audio(receiver_audio_1.transpose(0,1).numpy(), sample_rate, -17)[0]
@@ -125,17 +111,17 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
         'source1': {
             'audio': audioname1,
             'start_end_points': start_end_points1,
-            'words': [transcripts[name] for name in audioname1]
+            'words': [transcripts[os.path.basename(name)] for name in audioname1]
         },
         'source2': {
             'audio': audioname2,
             'start_end_points': start_end_points2,
-            'words': [transcripts[name] for name in audioname2]
+            'words': [transcripts[os.path.basename(name)] for name in audioname2]
         },
         'source3': {
             'audio': audioname3,
             'start_end_points': start_end_points3,
-            'words': [transcripts[name] for name in audioname3]
+            'words': [transcripts[os.path.basename(name)] for name in audioname3]
         },
         'noise': {
             'audio': noise_audioname,
@@ -167,7 +153,7 @@ def removing_exist_speaker(root, speech_lists):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', handlers=[logging.FileHandler(f'SonicSet-train.log'), logging.StreamHandler()])
     
-    multiprocessing.set_start_method("spawn")
+    mp.set_start_method('spawn', force=True)
     channel_type = 'Mono' # Supported: 'Ambisonics', 'Binaural', 'Mono', 'CustomArrayIR'
     mic_array_list = None
     # For CustomArrayIR
@@ -228,6 +214,8 @@ if __name__ == "__main__":
                 end_time = time.time()
                 logging.info(f"Time elapsed: {(end_time - start_time)/60} min, Length of speech list: {len(speech_list)}")
                 total_time += (end_time - start_time)/60
+                torch.cuda.empty_cache()
+                gc.collect()
             logging.info("Total time: {} min".format(total_time))
                 
                 

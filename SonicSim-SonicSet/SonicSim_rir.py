@@ -19,7 +19,7 @@ from habitat_sim.utils import quat_from_angle_axis
 from habitat.utils.visualizations import maps, utils
 
 from tqdm import tqdm
-import multiprocessing
+import torch.multiprocessing as mp
 
 def clip_all(audio_list):
     """
@@ -631,7 +631,7 @@ def create_custom_arrayir(
         position=source_position,
         rotation=0,
         dry_sound='',
-        device=torch.device('cpu')
+        device=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     )
     multi_channels = []
     for mic_idx, mic in enumerate(mic_array):
@@ -647,7 +647,7 @@ def create_custom_arrayir(
             receiver=receiver,
             source_list=[source],
             include_visual_sensor=False,
-            device=torch.device('cpu'),
+            device=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
             use_default_material=use_default_material,
             channel_type="Mono",
             channel_order=channel_order
@@ -694,7 +694,7 @@ def render_ir(room: str,
         position=source_position,
         rotation=0,
         dry_sound='',
-        device=torch.device('cpu')
+        device=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     )
 
     scene = Scene(
@@ -703,7 +703,7 @@ def render_ir(room: str,
         receiver=receiver,
         source_list=[source],
         include_visual_sensor=False,
-        device=torch.device('cpu'),
+        device=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
         use_default_material=use_default_material,
         channel_type=channel_type,
         channel_order=channel_order
@@ -712,7 +712,7 @@ def render_ir(room: str,
     # Render IR
     scene.add_audio_sensor()
     # with suppress_stdout_and_stderr():
-    ir = scene.render_ir(0)
+    ir = scene.render_ir(0).detach().cpu()
     scene.sim.close()
     # Save file if dirname is given
     if filename is not None:
@@ -721,22 +721,13 @@ def render_ir(room: str,
         return ir
 
 
-def render_rir_parallel(room_list: T.List[str],
-                        source_position_list: T.List[T.Tuple[float, float, float]],
-                        receiver_position_list: T.List[T.Tuple[float, float, float]],
-                        mic_array_list: T.List[T.List[Tuple[float, float, float]]] = None,
-                        filename_list: T.List[str] = None,
-                        receiver_rotation_list: T.List[float] = None,
-                        batch_size: int = 64,
-                        sample_rate: float = 16000,
-                        use_default_material: bool = False,
-                        channel_type: str = 'Ambisonics',
-                        channel_order: int = 1
-                        ) -> T.List[torch.Tensor]:
+def render_rir_parallel(room_list, source_position_list, receiver_position_list,
+                        mic_array_list=None, filename_list=None, receiver_rotation_list=None,
+                        batch_size=64, sample_rate=16000, use_default_material=False,
+                        channel_type='Ambisonics', channel_order=1):
     """
-    Run render_ir parallely for all elements of zip(source_position_list, receiver_position_list).
+    Run render_ir (or create_custom_arrayir) in parallel for all elements.
     """
-
     assert len(room_list) == len(source_position_list)
     assert len(source_position_list) == len(receiver_position_list)
 
@@ -748,45 +739,56 @@ def render_rir_parallel(room_list: T.List[str],
     if receiver_rotation_list is None:
         receiver_rotation_list = [0] * len(receiver_position_list)
 
-    # Note: Make sure all rooms are downloaded
-
-    # Calculate the number of batches
     num_points = len(source_position_list)
     num_batches = (num_points + batch_size - 1) // batch_size
 
-    # Use tqdm to display the progress bar
     progress_bar = tqdm(total=num_points)
 
     def update_progress(*_):
         progress_bar.update()
 
-    ir_list = []
-    with multiprocessing.Pool(30) as pool:
-        for batch_idx in range(num_batches):
-            start_idx = batch_idx * batch_size
-            end_idx = min(start_idx + batch_size, num_points)
+    # 使用 torch.multiprocessing.Manager()
+    with mp.Manager() as manager:
+        ir_list = manager.list() 
+        with mp.Pool(mp.cpu_count()) as pool:
+            for batch_idx in range(num_batches):
+                start_idx = batch_idx * batch_size
+                end_idx = min(start_idx + batch_size, num_points)
 
-            if is_return:
-                batch = [(room_list[i], source_position_list[i], receiver_position_list[i], None, receiver_rotation_list[i]) for i in range(start_idx, end_idx)]
-            else:
-                batch = [(room_list[i], source_position_list[i], receiver_position_list[i], filename_list[i], receiver_rotation_list[i]) for i in range(start_idx, end_idx)]
-
-            tasks = []
-            for room, source_position, receiver_position, filename, receiver_rotation in batch:
-                if channel_type == "CustomArrayIR":
-                    task = pool.apply_async(create_custom_arrayir, args=(room, source_position, receiver_position, mic_array_list, filename, receiver_rotation, sample_rate, use_default_material, channel_order), callback=update_progress)
-                else:
-                    task = pool.apply_async(render_ir, args=(room, source_position, receiver_position, filename, receiver_rotation, sample_rate, use_default_material, channel_type, channel_order), callback=update_progress)
-                tasks.append(task)
-
-            for task in tasks:
                 if is_return:
-                    ir = task.get()
-                    ir_list.append(ir)
+                    batch = [
+                        (room_list[i], source_position_list[i], receiver_position_list[i], None, receiver_rotation_list[i]) 
+                        for i in range(start_idx, end_idx)
+                    ]
                 else:
-                    task.get()
-    if is_return:
-        return ir_list
+                    batch = [
+                        (room_list[i], source_position_list[i], receiver_position_list[i], filename_list[i], receiver_rotation_list[i])
+                        for i in range(start_idx, end_idx)
+                    ]
+
+                tasks = []
+                for room, source_position, receiver_position, filename, receiver_rotation in batch:
+                    if channel_type == "CustomArrayIR":
+                        task = pool.apply_async(create_custom_arrayir, 
+                                                args=(room, source_position, receiver_position, mic_array_list, filename, receiver_rotation, sample_rate, use_default_material, channel_order),
+                                                callback=update_progress)
+                    else:
+                        task = pool.apply_async(render_ir, 
+                                                args=(room, source_position, receiver_position, filename, receiver_rotation, sample_rate, use_default_material, channel_type, channel_order),
+                                                callback=update_progress)
+                    tasks.append(task)
+
+                for task in tasks:
+                    if is_return:
+                        ir = task.get()
+                        # 确保返回 CPU 张量
+                        ir_list.append(ir)
+                    else:
+                        task.get()
+
+        if is_return:
+            # 在返回前转换成普通列表，避免 manager 上下文关闭后再访问
+            return list(ir_list)
 
 def create_scene(room: str,
                  receiver_position: T.Tuple[float, float, float] = [0.0, 0.0, 0.0],
@@ -813,7 +815,7 @@ def create_scene(room: str,
             [None],  # placeholder for source class
             receiver=receiver,
             include_visual_sensor=include_visual_sensor,
-            device=torch.device('cpu'),
+            device=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
             image_size=image_size,
             hfov=hfov
         )
