@@ -44,7 +44,7 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
     print(mic_points)
     print(noise_music_points)
     grid_points = [spks_nav_points, mic_points, noise_music_points]
-    SonicSim_rir.save_trace_gif(scene, "./trace.png", grid_points)
+    SonicSim_rir.save_trace_gif(scene, f"{results_dir}/trace.png", grid_points)
     scene.sim.close()
     # Generate RIRs
     output_dir = f'{results_dir}'
@@ -104,8 +104,6 @@ def process_single(scene, sample_rate, novel_path_config, channel_type, mic_arra
     torchaudio.save(f'{output_dir}/moving_audio_3.wav', torch.from_numpy(receiver_audio_3).transpose(0,1), sample_rate=sample_rate)
     torchaudio.save(f'{output_dir}/noise_audio.wav', torch.from_numpy(rir_noise).transpose(0,1), sample_rate=sample_rate)
     torchaudio.save(f'{output_dir}/music_audio.wav', torch.from_numpy(rir_music).transpose(0,1), sample_rate=sample_rate)
-    
-    # SonicSim_rir.save_trace_gif(scene, f"{output_dir}/trace.png", grid_points)
     
     json_dicts = {
         'source1': {
